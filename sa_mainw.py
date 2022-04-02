@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+#edited 1 
 # Form implementation generated from reading ui file 'sa_mainw.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
