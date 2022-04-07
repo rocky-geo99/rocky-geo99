@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#edited 1 
-#edited dk
+
 # Form implementation generated from reading ui file 'sa_mainw.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
@@ -259,7 +258,7 @@ class Ui_MainWindow(object):
                     print(i)
                     havesonic = True
                     self.havesonic1 = True
-                    dt = w1.data[sonic_mnemonics] # assuming us/m 
+                    dt = w1.data[sonic_mnemonics].values # assuming us/m 
                     print(dt)
                     depth_increment = w1.data[sonic_mnemonics].step # for time-depth relationship 
                     dlog_start = w1.data[sonic_mnemonics].start
@@ -274,14 +273,17 @@ class Ui_MainWindow(object):
                     density_mnemonics = i 
                     havedensity = True
                     self.havedensity1 = True 
+        
+        '''
         #print(havedensity, density_mnemonics) -> validation that filter works
-        w1.data['Test'] = w1.data[sonic_mnemonics]
+        w1.data['Test'] = w1.data[sonic_mnemonics] ##############################################
         ### Automatically acquiring the acoustic impedance and reflection coefficient 
         print(w1.data['Test'])
         print(w1.data[sonic_mnemonics])
-            
-        ## Establishing Time-Depth Relationship 
         '''
+        ## Establishing Time-Depth Relationship 
+        w1df = w1.df()
+        
         
         ### Determining the depth of log_start (where loggin of data begins) 
         #dlog_start = w1df[mnemonics[0]].keys()[0]
@@ -297,14 +299,15 @@ class Ui_MainWindow(object):
         if havesonic == True:
             dt_iterval = np.nan_to_num(dt)*depth_increment/1e6 
             t_cum = np.cumsum(dt_iterval)*2 #*2 for two way time 
-            w1.data['TWT'] = t_cum + log_start_time1
+            TWT = t_cum + log_start_time1
+            w1df['TWT'] = TWT 
             print(t_cum + log_start_time1)
-            print(w1.data['TWT'])
+            print(w1df)
         '''
         
         w1df = w1.df()
         #print(w1df['TWT'])
-        
+        '''
         # acoustic impedance: 
         if havesonic == True and havedensity == True: 
             #sonic velocity calculate: 
@@ -457,11 +460,23 @@ class Ui_MainWindow(object):
             # Ricker Wavelet: 
             if wavelet_type == 'Ricker': 
                 ricker_var = rickerinfo()
-                wave_len, freq = ricker_var.getInputs
+                wave_len, freq = ricker_var.getInputs()
                 wave_len = float(wave_len)
                 freq = float(freq) 
-                wavelet = bruges.filters.wavelets.ricker(wave_len, dt, freq, t=None, return_t=True, sym=True)
-                print(wavelet) 
+                wavelet = bg.filters.wavelets.ricker(wave_len, dt, freq, t=None, return_t=True, sym=True)
+                #convolution of data
+                print(wavelet.amplitude) 
+                for i in range(len(Rc_tdom)):
+                    if math.isnan(Rc_tdom[i]) == True :
+                        Rc_tdom[i] = 0
+                synthetic = np.convolve(wavelet.amplitude, Rc_tdom, mode = 'same')
+                print(synthetic)
+                self.GenSyn1Graph.setBackground('w')
+                pen = pg.mkPen(color=(255, 0, 0))
+                trackplot = pg.PlotCurveItem(synthetic,connect='finite',pen=(255, 0, 0))
+                self.GenSyn1Graph.addItem(trackplot)
+                self.GenSyn1Graph.invertY(True)
+                self.GenSyn1Graph.showGrid(x=True,y=True)
                 
                 
             ## Other wavelets @ https://code.agilescientific.com/bruges/api/bruges.filters.html#module-bruges.filters.wavelets
@@ -485,9 +500,9 @@ class tdinfo(QDialog):
         super().__init__(parent)
 
         self.first = QLineEdit(self)
-        self.first.setPlaceholderText("800")
+        self.first.setText("800")
         self.second = QLineEdit(self)
-        self.second.setPlaceholderText("2300")
+        self.second.setText("2300")
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self);
 
         layout = QFormLayout(self)
@@ -510,9 +525,9 @@ class syninfo(QDialog):
         super().__init__(parent)
 
         self.first = QLineEdit(self)
-        self.first.setPlaceholderText("0.001")
+        self.first.setText("0.001")
         self.second = QLineEdit(self)
-        self.second.setPlaceholderText("3")
+        self.second.setText("3")
         self.third = QtWidgets.QComboBox(self)
         waveletlist = ['Ricker','Ormsby']
         # https://code.agilescientific.com/bruges/api/bruges.filters.html#module-bruges.filters.wavelets -> other wavelets to be implemented 
@@ -539,9 +554,9 @@ class rickerinfo(QDialog):
         super().__init__(parent)
 
         self.first = QLineEdit(self)
-        self.first.setPlaceholderText("0.256")
+        self.first.setText("0.256")
         self.second = QLineEdit(self)
-        self.second.setPlaceholderText("20")
+        self.second.setText("20")
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self);
 
         layout = QFormLayout(self)
