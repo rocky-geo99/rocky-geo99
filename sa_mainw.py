@@ -421,7 +421,7 @@ class Ui_MainWindow(object):
                     #print(depth_increment,dlog_start)
         #print(havesonic, sonic_mnemonics) -> validation that filter works
         ###   Automatically Select the density based on the given mnmemonics  
-        densitylist = ['RHOB','RHOZ']
+        densitylist = ['RHOB','RHOZ', 'DEN']
         
         if chosen_density == False: 
             for i in densitylist: 
