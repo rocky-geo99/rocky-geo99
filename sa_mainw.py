@@ -979,6 +979,7 @@ class Ui_MainWindow(object):
             dplot = well1df_tdom[sel_data]
             y = dplot.values 
             x = dplot.index.values
+            
         else: 
             #select that data will be coming from the general well data 
             dplot = well1df[sel_data]
@@ -1550,18 +1551,29 @@ class Ui_MainWindow(object):
         for i in range(len(Rc_tdom)):
             if math.isnan(Rc_tdom[i]) == True :
                 Rc_tdom[i] = 0
-        synthetic = np.convolve(wavelet.amplitude, Rc_tdom, mode = 'same')
+                
+        synth = np.convolve(wavelet.amplitude, Rc_tdom, mode = 'same')
+        
+        #Adding curve fill ability 
+        synth_pos = np.where(synth < 0, 0, synth) # positive synthetic only 
+        syn_co = synth * 0 # synthetic curve 
+        synth_pos_curve = pg.PlotCurveItem(x=synth_pos, y=t[0:], pen='b') # creating a curve with positive only 
+        syn_co_curve = pg.PlotCurveItem(x=syn_co, y=t[0:], pen=[0, 0, 0, 125]) # creating the constant curve 
+        syn_fill = pg.FillBetweenItem(synth_pos_curve, syn_co_curve, brush=[150, 150, 150]) #creating the fill curve 
+        
         
         pen = pg.mkPen(color=(255, 0, 0))
-        trackplot = pg.PlotCurveItem(synthetic,t,connect='finite',pen=(255, 0, 0))
+        trackplot = pg.PlotCurveItem(synth,t,connect='finite',pen=(150, 150, 150)) #
         
         if well_sel == 1: 
             self.GenSyn1Graph.setBackground('w')
+            self.GenSyn1Graph.addItem(syn_fill)
             self.GenSyn1Graph.addItem(trackplot)
             self.GenSyn1Graph.invertY(True)
             self.GenSyn1Graph.showGrid(x=True,y=True)
         else: 
             self.GenSyn2Graph.setBackground('w')
+            self.GenSyn2Graph.addItem(syn_fill)
             self.GenSyn2Graph.addItem(trackplot)
             self.GenSyn2Graph.invertY(True)
             self.GenSyn2Graph.showGrid(x=True,y=True)
