@@ -444,7 +444,7 @@ class Ui_MainWindow(object):
         self.menuGenerate_Synthetic.addAction(self.Create_Synthetic_Menu_Button)
         self.menubar.addAction(self.menuLoad_Data.menuAction())
         self.menubar.addAction(self.menuGenerate_Synthetic.menuAction())
-
+        
         self.retranslateUi(MainWindow)
         self.HCF_slider.valueChanged['int'].connect(self.HCF_LCD.display)
         self.HPF_slider.valueChanged['int'].connect(self.HPF_LCD.display)
@@ -456,7 +456,6 @@ class Ui_MainWindow(object):
         
         #Turning off the synthetic options 
         self.synthethic_options_frame.setEnabled(False)
-        
         #Creating Plots for Each Track 
         ## Well 1 
         self.w1t1 = self.Well1Plots.addPlot(row=0,col=0) 
@@ -932,7 +931,7 @@ class Ui_MainWindow(object):
         self.comboBox_Track3_well2.addItems(mnemonics)
         
     #Methods to sync tracks to the synthetic track 
-        def linksynth_w1t1(self):
+    def linksynth_w1t1(self):
         w1t1status = self.Well1_Track1_Link_Checkbox.checkState()
         vbox = self.w1t1.getViewBox()
         if w1t1status == 2:
