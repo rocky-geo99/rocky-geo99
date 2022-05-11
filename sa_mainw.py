@@ -454,6 +454,9 @@ class Ui_MainWindow(object):
         self.LCF_slider.valueChanged['int'].connect(self.LCF_LCD.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
+        #Bug Fixes: 
+        self.Phase_slider.setValue(90) # starts the slider at 90 degrees 
+        
         #Turning off the synthetic options 
         self.synthethic_options_frame.setEnabled(False)
         #Creating Plots for Each Track 
@@ -506,7 +509,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "SYNTHETIC ANALYSIS"))
+        # renaming window title to new format 
+        MainWindow.setWindowTitle(_translate("MainWindow", "Synthetic Analysis - v0.0 - 05/10/2022 - 90deg phase start & rename"))
         self.Well_info_label.setText(_translate("MainWindow", "Well Name"))
         self.Track1dropdown.setText(_translate("MainWindow", "Track 1"))
         self.Track2dropdown.setText(_translate("MainWindow", "Track 2"))
