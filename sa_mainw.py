@@ -16,7 +16,7 @@ import lasio
 import numpy as np
 
 #Testing library: time 
-import time
+#import time
 
 class Ui_MainWindow(object):
     def __init__(self):
@@ -515,8 +515,6 @@ class Ui_MainWindow(object):
         self.LCF_slider.valueChanged['int'].connect(self.LCF_LCD.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
-        #Bug Fixes: 
-        self.Phase_slider.setValue(90) # starts the slider at 90 degrees 
         
         #Turning off the synthetic options 
         self.synthethic_options_frame.setEnabled(False)
@@ -547,8 +545,8 @@ class Ui_MainWindow(object):
         ####    Connections    ####
         #connection to loading well 1
         #self.actionLoad_Well_1.triggered.connect(lambda : self.setattribute(self.loadwell1))
-        self.actionLoad_Well_1.triggered.connect(self.loadwell1)
-        self.actionLoad_Well_2.triggered.connect(self.loadwell2)
+        self.actionLoad_Well_1.triggered.connect(lambda: self.loadwell(well_sel=1))
+        self.actionLoad_Well_2.triggered.connect(lambda: self.loadwell(well_sel=2))
         #connection to plot data  - well 1 
         self.comboBox_Track1.activated.connect(lambda : self.plotw1t1(self.well1,self.well1df,self.seis_data1,self.repl_vel1,self.well1df_tdom,self.well1topsdf))
         
@@ -579,7 +577,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         # renaming window title to new format 
-        MainWindow.setWindowTitle(_translate("MainWindow", "Synthetic Analysis - v0.01 - 05/17/2022 - Vertical Stretching of Plot Window"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Synthetic Analysis - v0.03 - 06/15/2022 - Fixed Convolution/Synthetic Generated "))
         self.LCF_checkBox.setText(_translate("MainWindow", "LCF Multiple"))
         self.Create_Synthetic.setText(_translate("MainWindow", "Create Synthetic"))
         self.max_time_label.setText(_translate("MainWindow", "Max Time (s)"))
@@ -640,11 +638,12 @@ class Ui_MainWindow(object):
         self.gensynwell_2.setText(_translate("MainWindow", "Well 2"))
         
         
-    def loadwell1(self):
+    def loadwell(self,well_sel):
+        #well_sel - the selected well to load
         #file location from Qdialog 
         floc = QFileDialog.getOpenFileName(None, 'Open File', 'C:\ ')
         
-        #Loading Well Tops:
+        ########## Loading Well Tops: ############
         file = open(floc[0])
         #finding the correct line where Tops begin
         fileline = file.readline() # reading the first line 
@@ -684,16 +683,29 @@ class Ui_MainWindow(object):
             
         #Storing the tops data into a dataframe 
         file.close()
-                
         
+        ################# Data Loading ################
+        """
+        Steps: 
+        1. Unit Conversion - not neccesarily 
+        2. Time-Depth Relationship 
+        3. Acquire TWT travel time 
+        4. Conver to dataframe
+        5. Calculate Vsonic, Acoustic Impedance 
+        6. Calculate Reflection Coefficient 
+        7. Resampling AI into time domain via interpolation
+        8. Calculation of Reflection Coefficient in time domain 
+        9. Acquire Wavelet 
+        10. synthetic convolution via numpy convolution 
+        """
         #setup to laad the well into a data frame using the LAS library 
-        w1 = Well.from_las(floc[0]) 
+        w = Well.from_las(floc[0]) 
         #data that contains all 
         data = tdinfo()
         seis_dat, repl_vel = data.getInputs()
         seis_dat = float(seis_dat)
         repl_vel = float(repl_vel) 
-        mnemonics = w1._get_curve_mnemonics()
+        well_mnemonics = w._get_curve_mnemonics()
         
         ### Ask for Despiking and smoothing of Density and Sonic data here 
         ### Ask User to select the appropriate sonic and density logs -> to later create a synthetic 
@@ -709,15 +721,14 @@ class Ui_MainWindow(object):
         
         if chosen_sonic == False:
             for i in soniclist:
-                if i in mnemonics:
+                if i in well_mnemonics:
                     sonic_mnemonics = i 
                     #print(i)
                     havesonic = True
-                    self.havesonic1 = True
-                    dt = w1.data[sonic_mnemonics].values # assuming us/m 
-                    #print(dt)
-                    depth_increment = w1.data[sonic_mnemonics].step # for time-depth relationship 
-                    dlog_start = w1.data[sonic_mnemonics].start
+                    #self.havesonic1 = True
+                    dt = w.data[sonic_mnemonics].values # assuming us/m 
+                    depth_increment = w.data[sonic_mnemonics].step # for time-depth relationship 
+                    dlog_start = w.data[sonic_mnemonics].start
                     #print(depth_increment,dlog_start)
         #print(havesonic, sonic_mnemonics) -> validation that filter works
         ###   Automatically Select the density based on the given mnmemonics  
@@ -725,33 +736,68 @@ class Ui_MainWindow(object):
         
         if chosen_density == False: 
             for i in densitylist: 
-                if i in mnemonics:
+                if i in well_mnemonics:
                     density_mnemonics = i 
                     havedensity = True
-                    self.havedensity1 = True 
+                    #self.havedensity1 = True 
+                    den = w.data[density_mnemonics]
         
-        w1df = w1.df()
+        #w1df = w1.df() # d
+        """
+        2. Time-Depth Relationship: 
+        Determining the time it takes for when we start recording data down a well
+        """
         ## Establishing Time-Depth Relationship 
         ### Determining the depth of log_start (where loggin of data begins) 
         #dlog_start = w1df[mnemonics[0]].keys()[0]
         ### Determining the distance below the seismic datum 
         # Seismic_Datum-Kelly Bushing+log_start = distance below seismic datum 
-        dblwseisdat1 = seis_dat-w1.location.ekb+dlog_start 
-        self.dblwseisdat1 = dblwseisdat1
+        dblwseisdat = seis_dat-w.location.ekb+dlog_start 
+        #self.dblwseisdat1 = dblwseisdat
         #Log start time (s)
-        log_start_time1 = (dblwseisdat1/repl_vel)*2 #have to multiply by 2 b/c of TWT 
-        self.log_start_time1 = log_start_time1
+        log_start_time = (dblwseisdat/repl_vel)*2 #have to multiply by 2 b/c of TWT 
+        #self.log_start_time1 = log_start_time
         
+        """
+        3. Acquire TWT travel time 
+            a. get sonic/density data from main well frame
+            b. calculate dt interval
+            c. calculate TWT 
+            d. get basis from the original DT data 
+            e. form a TWTcurve 
+            f. write a new TWT curve into the well frame 
+        4. Convert into a dataframe
+        """
         
         if havesonic == True:
-            dt_iterval = np.nan_to_num(dt)*depth_increment/1e6 
-            t_cum = np.cumsum(dt_iterval)*2 #*2 for two way time 
-            TWT = t_cum + log_start_time1
-            w1df['TWT'] = TWT 
-            mnemonics.append('TWT')
+            """  3a.  get sonic/density data from main well frame          """
+            dt = w.data[sonic_mnemonics] #acquire the values
+            """  3b.  calculate dt interval          """
+            dt_iterval = np.nan_to_num(dt.values)*depth_increment/1e6 # replace none numbers with replacement velocity 
+            """  3c. calculate TWT   """
+            t_cum =  np.cumsum(dt_iterval) * 2 #calculate the cumulative time to each layer
+            TWT = t_cum + log_start_time
+            print("log start time", log_start_time)
+            print("t_cum",t_cum)
+            print("twt",TWT)
+            """ 3d. get basis from the original DT data """
+            wellbasis = w.data[sonic_mnemonics].basis
+            """ 3e. form a TWTcurve """ 
+            TWTcurve = welly.curve.Curve(TWT,mnemonic='TWT',basis=wellbasis) # Create a new curve to add to the well 
+            """ 3f. write a new TWT curve into the well frame  """
+            w.data['TWT'] = TWTcurve
+            """ 4. Convert into a dataframe """ 
+            wdf = w.df()
+            
+            
+            #dt_iterval = np.nan_to_num(dt,nan=1/repl_vel)*depth_increment/1e6 # replace none numbers with replacement velocity 
+            #t_cum = np.cumsum(dt_iterval)*2 #*2 for two way time 
+            #TWT = t_cum + log_start_time1
+            wdf['TWT'] = TWT 
+            well_mnemonics.append('TWT')
             #variables needed to automatically calculate the TWT of each tops 
             Tops_TWT = [] 
-            logdepth = w1df.index.values
+            logdepth = wdf.index.values
             #if we have sonic and we do calculate TWT, 
             for i in Tops_Depth:
                 TWTindex = 0 
@@ -764,221 +810,84 @@ class Ui_MainWindow(object):
                 Tops_TWT.append(TWT[TWTindex]) # add the TWT to the list of TWT for the tops 
             topsdict = {'Tops_Name':Tops_Name,'Tops_Depth':Tops_Depth,'Tops_Color':Tops_Color,'Tops_TWT':Tops_TWT} # create a dictionary of all the tops information
             topsdf = pd.DataFrame(data=topsdict)#store the dictionary into a dataframe 
-            self.well1topsdf = topsdf 
         #this is if we don't sonic 
         else: 
             topsdict = {'Tops_Name':Tops_Name,'Tops_Depth':Tops_Depth,'Tops_Color':Tops_Color} # create a dictionary of all the tops information
             topsdf = pd.DataFrame(data=topsdict)#store the dictionary into a dataframe 
-            self.well1topsdf = topsdf 
-                
-                    
-            
-        
-        # acoustic impedance: 
-        if havesonic == True and havedensity == True: 
-            #sonic velocity calculate: 
-            w1df['Vsonic']=1e6/w1df[sonic_mnemonics].values #units transformed to m/s
-            #adding 'Vsonic' to the mnemonics: 
-            mnemonics.append('Vsonic')
-            #calculatin the Acoustic Impedance
-            w1df['AI'] = w1df['Vsonic'].values*w1df[density_mnemonics].values
-            #adding 'AI' to the mnemonics: 
-            mnemonics.append('AI')
-            #calculation of the reflection coefficient 
-            Imp = w1df['AI'].values
-            Rc = []
-            for i in range(len(Imp)-1):
-                Rc.append((Imp[i+1]-Imp[i])/(Imp[i]+Imp[i+1])) 
-            # to adjust vector size copy the last element to the tail
-            Rc.append(Rc[-1])
-            # Let's add Rc into dataframe as new column
-            w1df['Rc'] = pd.Series(Rc, index=w1df.index)
-            mnemonics.append('Rc')
-        
-        #### repopulating data parameters ####
-        self.well1 = w1
-        self.well1df = w1df
-        #print(w1.data[sonic_mnemonics].basis_units) 
-        #print(w1.curve[sonic_mnemonics].units)
-        self.seis_data1 = seis_dat
-        self.repl_vel1 = repl_vel
-        self.dlog_start1 = dlog_start # depth of data loggin start 
-        ### Determining KB from data
-        self.well1kb = w1.location.ekb
-        ### UWI from Data ## 
-        self.well1name = w1.uwi
-        self.Well_info_label.setText(w1.uwi)
-        #connection to populate combo boxes 
-        self.popcombobox1(mnemonics)     
 
-    #method to load well 2
-    def loadwell2(self):
-        #file location 
-        floc = QFileDialog.getOpenFileName(None, 'Open File', 'C:\ ')
-        
-        #Loading Well Tops:
-        file = open(floc[0])
-        #finding the correct line where Tops begin
-        fileline = file.readline() # reading the first line 
-        #read each line and skip it until we find the tops section 
-        while "~Tops" not in fileline:
-            fileline = file.readline()
-        # the first line that contains the first 
-        fileline = file.readline()
-        
-        # Top informations 
-        Tops_Depth = [] 
-        Tops_Name = []
-        Tops_Color = []
-        
-        #for each line in the top section 
-        while "~" not in fileline:
-            #split the text and turn in to a list 
-            stripped_fileline = fileline.split() #split all the text appart 
-            #the last item in the stripped fileline will always be the depth 
-            Tops_Depth.append(float(stripped_fileline[-1])) #store and turn it into float data instead of string data 
-            #if the length of the list is greater than 2 then there is a sub name that must be included in the tops list 
-            if len(stripped_fileline)>2:
-                #create a sub list that contains only the top name and sub category/additional names  of that top 
-                Top_Name_List = stripped_fileline[0:len(stripped_fileline)-1]
-                #join all the names together 
-                Top_Name = '-'.join(Top_Name_List)
-            #else the first value in the list is the top name 
-            else:
-                Top_Name = stripped_fileline[0]
-            #add that name to the list of top names 
-            Tops_Name.append(Top_Name)
-            #create a list that contains 3 numbers that will later be used to define the color of the top so that it can remain consistant 
-            #between all the plots 
-            Tops_Color.append(np.random.randint(0,250,3))
-            #read the next line 
-            fileline = file.readline()    
-            
-        #Storing the tops data into a dataframe 
-        file.close()
-        
-        
-        #setup to laad the well into a data frame using the LAS library 
-        w2 = Well.from_las(floc[0]) 
-        #data that contains all 
-        data = tdinfo()
-        seis_dat, repl_vel = data.getInputs()
-        seis_dat = float(seis_dat)
-        repl_vel = float(repl_vel) 
-        mnemonics = w2._get_curve_mnemonics()
-        
-        ### Ask for Despiking and smoothing of Density and Sonic data here 
-        ### Ask User to select the appropriate sonic and density logs -> to later create a synthetic 
-        chosen_sonic = False
-        sonic_mnemonics = None
-        havesonic = False
-        chosen_density = False
-        density_mnemonics = None
-        havedensity = False 
-        
-        ### Automatically Select the sonic based on the given mnmemonics
-        soniclist = ['DT', 'DTC', 'DTCO', 'DTCOMP', 'DELTAT', 'SLOW', 'SLOWNESS', 'TT', 'TIME', 'TIM', 'ITT', 'DTCQI', 'DTCR', 'DTCREP', 'DTCS', 'DTCSG', 'DTCU', 'DTCV0', 'DTCX', 'DTL', 'DTP', 'DTR', 'DTTP', 'DTU', 'DTUM', 'CTIME', 'COTIME', 'COMT', 'DT1A', 'DT1B', 'DT34', 'DT35', 'DT3A', 'DT3B', 'DT45', 'DT46', 'DT56', 'DTC1', 'DTC2', 'DTC3', 'DTCM', 'AC', 'ACCO', 'DELT', 'ACL', 'ACN', 'DT24', 'DT24QI', 'DT24SQA', 'DT41', 'DT4P', 'DT5', 'DTMN', 'DTMX', 'DTSC', 'TTC', 'AC1', 'MSTT', 'DtComp']
-        
-        if chosen_sonic == False:
-            for i in soniclist:
-                if i in mnemonics:
-                    sonic_mnemonics = i 
-                    #print(i)
-                    havesonic = True
-                    self.havesonic2 = True
-                    dt = w2.data[sonic_mnemonics].values # assuming us/m 
-                    #print(dt)
-                    depth_increment = w2.data[sonic_mnemonics].step # for time-depth relationship 
-                    dlog_start = w2.data[sonic_mnemonics].start
-                    #print(depth_increment,dlog_start)
-        #print(havesonic, sonic_mnemonics) -> validation that filter works
-        ###   Automatically Select the density based on the given mnmemonics  
-        densitylist = ['RHOB', 'RHOZ', 'DEN', 'DENB', 'DENC', 'DENCDL', 'HRHO', 'HRHOB', 'ZDEN', 'ZDENS', 'ZDNCS', 'ZDNC', 'HDEN', 'DENF', 'DENN']
-        
-        if chosen_density == False: 
-            for i in densitylist: 
-                if i in mnemonics:
-                    density_mnemonics = i 
-                    havedensity = True
-                    self.havedensity2 = True 
-        
-        w2df = w2.df()
-        ## Establishing Time-Depth Relationship 
-        ### Determining the depth of log_start (where loggin of data begins) 
-        #dlog_start = w1df[mnemonics[0]].keys()[0]
-        ### Determining the distance below the seismic datum 
-        # Seismic_Datum-Kelly Bushing+log_start = distance below seismic datum 
-        dblwseisdat2 = seis_dat-w2.location.ekb+dlog_start 
-        self.dblwseisdat2 = dblwseisdat2
-        #Log start time (s)
-        log_start_time2 = (dblwseisdat2/repl_vel)*2 #have to multiply by 2 b/c of TWT 
-        self.log_start_time2 = log_start_time2
-        
-        
-        if havesonic == True:
-            dt_iterval = np.nan_to_num(dt)*depth_increment/1e6 
-            t_cum = np.cumsum(dt_iterval)*2 #*2 for two way time 
-            TWT = t_cum + log_start_time2
-            w2df['TWT'] = TWT 
-            mnemonics.append('TWT')
-            #variables needed to automatically calculate the TWT of each tops 
-            Tops_TWT = [] 
-            logdepth = w2df.index.values
-            #if we have sonic and we do calculate TWT, 
-            for i in Tops_Depth:
-                TWTindex = 0 
-                # determine the TWT for each depth of the top 
-                # for each depth in the tops, 
-                    #TWTindex = 0 
-                #while the value of the depth is greater than the current index
-                while i > logdepth[TWTindex]:
-                    TWTindex = TWTindex +1 #move to the next index: Note that his will pass the TWT until after it reaches the next depth
-                Tops_TWT.append(TWT[TWTindex]) # add the TWT to the list of TWT for the tops 
-            topsdict = {'Tops_Name':Tops_Name,'Tops_Depth':Tops_Depth,'Tops_Color':Tops_Color,'Tops_TWT':Tops_TWT} # create a dictionary of all the tops information
-            topsdf = pd.DataFrame(data=topsdict)#store the dictionary into a dataframe 
-            self.well2topsdf = topsdf 
-        #this is if we don't sonic 
-        else: 
-            topsdict = {'Tops_Name':Tops_Name,'Tops_Depth':Tops_Depth,'Tops_Color':Tops_Color} # create a dictionary of all the tops information
-            topsdf = pd.DataFrame(data=topsdict)#store the dictionary into a dataframe 
-            self.well2topsdf = topsdf
-            
+                        
+        """
+        5. Calculate Vsonic, Acoustic Impedance
+        """
         
         # acoustic impedance: 
         if havesonic == True and havedensity == True: 
             #sonic velocity calculate: 
-            w2df['Vsonic']=1e6/w2df[sonic_mnemonics].values #units transformed to m/s
+            wdf['Vsonic']=1e6/wdf[sonic_mnemonics].values #units transformed to m/s
             #adding 'Vsonic' to the mnemonics: 
-            mnemonics.append('Vsonic')
+            well_mnemonics.append('Vsonic')
             #calculatin the Acoustic Impedance
-            w2df['AI'] = w2df['Vsonic'].values*w2df[density_mnemonics].values
+            wdf['AI'] = wdf['Vsonic'].values*wdf[density_mnemonics].values
             #adding 'AI' to the mnemonics: 
-            mnemonics.append('AI')
+            well_mnemonics.append('AI')
             #calculation of the reflection coefficient 
-            Imp = w2df['AI'].values
+            Imp = wdf['AI'].values
+            """
+            6. Calculate Reflection Coefficient 
+            """
             Rc = []
             for i in range(len(Imp)-1):
                 Rc.append((Imp[i+1]-Imp[i])/(Imp[i]+Imp[i+1])) 
             # to adjust vector size copy the last element to the tail
             Rc.append(Rc[-1])
             # Let's add Rc into dataframe as new column
-            w2df['Rc'] = pd.Series(Rc, index=w2df.index)
-            mnemonics.append('Rc')
+            wdf['Rc'] = pd.Series(Rc, index=wdf.index)
+            well_mnemonics.append('Rc')
         
         #### repopulating data parameters ####
-        self.well2 = w2
-        self.well2df = w2df
-        self.seis_data2 = seis_dat
-        self.repl_vel2 = repl_vel
-        self.dlog_start2 = dlog_start # depth of data loggin start 
-        ### Determining KB from data
-        self.well2kb = w2.location.ekb
-        ### UWI from Data ## 
-        self.well2name = w2.uwi
-        self.Well_info_label2.setText(w2.uwi)
-        #connection to populate combo boxes 
-        self.popcombobox2(mnemonics)     
-    
+        if well_sel == 1: 
+            self.dblwseisdat1 = dblwseisdat
+            self.log_start_time1 = log_start_time
+            self.well1topsdf = topsdf 
+            self.well1 = w
+            self.well1df = wdf
+            #print(w1.data[sonic_mnemonics].basis_units) 
+            #print(w1.curve[sonic_mnemonics].units)
+            self.seis_data1 = seis_dat
+            self.repl_vel1 = repl_vel
+            self.dlog_start1 = dlog_start # depth of data loggin start 
+            ### Determining KB from data
+            self.well1kb = w.location.ekb
+            ### UWI from Data ## 
+            self.well1name = w.uwi
+            self.Well_info_label.setText(w.uwi)
+            #connection to populate combo boxes 
+            self.popcombobox1(well_mnemonics)    
+            #passing info that well has sonic&density 
+            self.havesonic1 = havesonic
+            self.havedensity1 = havedensity
+            
+        else:
+            self.dblwseisdat2 = dblwseisdat #distance below seismic datum
+            self.log_start_time2 = log_start_time #log start tine
+            self.well2topsdf = topsdf #tops dataframe if any 
+            self.well2 = w #well data from welly
+            self.well2df = wdf #well data transformed into a dataframe
+            self.seis_data2 = seis_dat #seismic datum 
+            self.repl_vel2 = repl_vel  #replacement velocity 
+            self.dlog_start2 = dlog_start # depth of data loggin start 
+            ### Determining KB from data
+            self.well2kb = w.location.ekb #Well 2 Kelly Bushing
+            ### UWI from Data ## 
+            self.well2name = w.uwi #Well UWI
+            self.Well_info_label2.setText(w.uwi)  
+            #connection to populate combo boxes 
+            self.popcombobox2(well_mnemonics) #fillingi the dropdown of gui
+            #passing info that well has sonic&density 
+            self.havesonic2 = havesonic #well have sonic
+            self.havedensity2 = havedensity #well have density
+
+
     
     #method to populate combobox data for well1
     def popcombobox1(self,well_attr): 
@@ -1541,44 +1450,46 @@ class Ui_MainWindow(object):
         if well_sel == 1: 
             self.w1syn.clear()
             self.wavelet_graph.clear()
-        else: 
+        else: # well selected is 2 
             self.w2syn.clear()
             self.wavelet_graph_2.clear()
-        ######################## TESTING synthetic plot not resetting ? ######################
-        #time.sleep(1)
-        
+
         # Note: For data that only required 1 frequency, we are using LPF_slider
         
         if well_sel == 1: 
             AI = well1df.AI.values
+            AI = np.nan_to_num(AI)
+            RC = well1df.Rc.values
+            RC = np.nan_to_num(RC)
+            TWT = well1df['TWT'].values
         else: 
             AI = well2df.AI.values
-                
-        #Acoustic Impedance manipulation 
-        
-        for i in range(len(AI)):
-            if math.isnan(AI[i]) == True :
-                AI[i] = 0
-
-        for i in range(len(AI)):
-            if AI[i] == 0 :
-                AI[i] = np.mean(AI)
-        
+            AI = np.nan_to_num(AI)
+            RC = well2df.Rc.values
+            RC = np.nan_to_num(RC)
+            TWT = well2df['TWT'].values
+        #### Reflection Coefficient and Acoustic Impedance interpolation ############# incorrect acoustic impedance interpolation 
+        """
+        7. Resampling AI into time domain via interpolation
+        """
         if well_sel == 1: 
             AI_tdom = np.interp(x=t,xp=well1df['TWT'].values,fp=AI)
         else: 
             AI_tdom = np.interp(x=t,xp=well2df['TWT'].values,fp=AI)
-        
-            #resampling to time domain via interpolation      
+
+        """
+        8. Calculation of Reflection Coefficient in time domain 
+        """
         
         #reflection coefficient in time domain 
-            # again Rc calulation but in reampled time domain
-            
+        # again Rc calulation but in reampled time domain
         Rc_tdom = []
         for i in range(len(AI_tdom)-1):
             Rc_tdom.append((AI_tdom[i+1]-AI_tdom[i])/(AI_tdom[i]+AI_tdom[i+1]))
         # to adjust vector size copy the last element to the tail
         Rc_tdom.append(Rc_tdom[-1])
+        print("Rc_tdom",Rc_tdom)
+        
         
         #dataframe for plotting items in dataframe 
         if well_sel == 1: 
@@ -1587,7 +1498,7 @@ class Ui_MainWindow(object):
                 self.comboBox_Track2.addItems(['AI_tdom','Rc_tdom'])
                 self.comboBox_Track3.addItems(['AI_tdom','Rc_tdom'])
             tdom_data1 = {'AI_tdom':AI_tdom,'Rc_tdom':Rc_tdom}
-            well1df_tdom = pd.DataFrame(data =tdom_data1,index=t)
+            well1df_tdom = pd.DataFrame(data = tdom_data1,index = t)
             self.well1df_tdom = well1df_tdom
             
         else:
@@ -1598,72 +1509,76 @@ class Ui_MainWindow(object):
             tdom_data2 = {'AI_tdom':AI_tdom,'Rc_tdom':Rc_tdom}
             well2df_tdom = pd.DataFrame(data =tdom_data2,index=t)
             self.well2df_tdom = well2df_tdom
-            
+       
+        """
+        9. Acquire Wavelet 
+        """
         #wavelet data 
-        if w_type == 'Ricker': # only need 1 frequency 
+        print(w_type)
+        if w_type == "Ricker": # only need 1 frequency 
             freq = float(self.LPF_slider.value())
-            wavelet = bg.filters.wavelets.ricker(wave_len, dt, freq, t=None, return_t=True, sym=True)
+            wavelet, wavelet_time = bg.filters.ricker(wave_len,dt,freq)#
 
-        if w_type == 'Ormsby':
+        elif w_type == "Ormsby":
             LCF = float(self.LCF_slider.value())
             LPF = float(self.LPF_slider.value())
             HPF = float(self.HPF_slider.value())
             HCF = float(self.HCF_slider.value())
             # need warning sign that LCF < LPF < HPF < HCF 
             freq = [LCF,LPF,HPF,HCF]
-            wavelet = bg.filters.wavelets.ormsby(wave_len, dt, freq, t=None, return_t=True, sym=True)
-        if w_type == 'Berlage':
+            wavelet, wavelet_time = bg.filters.ormsby(wave_len, dt, f=freq)
+        elif w_type == "Berlage":
             freq = float(self.LPF_slider.value())
-            wavelet = bg.filters.wavelets.berlage(wave_len, dt, freq,n=2,alpha=180, phi=- 1.5707963267948966, t=None, return_t=True, sym=True) 
-            #can change data to accept other values of n,alpha,phi 
+            wavelet, wavelet_time = bg.filters.berlage(wave_len, dt, freq) 
         else: #Generalized
             freq = float(self.LPF_slider.value())
-            wavelet = bg.filters.wavelets.generalized(wave_len, dt, freq, u=1.0, t=None, return_t=True, sym=True)
-
+            wavelet, wavelet_time = bg.filters.generalized(wave_len, dt, freq)
+        
+        
         #phase rotation of wavelet via Hilbert Transform 
-        wavexplot = wavelet.time
-        waveyplot = wavelet.amplitude #amplitude of the chosen wavelet
-        print(wavelet) # 
         rotate_phase = float(self.Phase_slider.value()) #degrees 
         if rotate_phase != 0:
             waveyplot = bg.filters.filters.rotate_phase(waveyplot,rotate_phase,degrees=True)
 
         #plotting of wavelet
-        trackplot = pg.PlotCurveItem(wavexplot,waveyplot,connect='finite',pen=(255, 0, 0))
+        trackplot = pg.PlotCurveItem(wavelet,wavelet_time,connect='finite',pen=(255, 0, 0))
         #clearing the current graphs of data: 
         if well_sel == 1: 
             self.wavelet_graph.addItem(trackplot)
         else: 
             self.wavelet_graph_2.addItem(trackplot)
         
-        #convolution of data
-
-        for i in range(len(Rc_tdom)):
-            if math.isnan(Rc_tdom[i]) == True :
-                Rc_tdom[i] = 0
-                
-        synth = np.convolve(wavelet.amplitude, Rc_tdom, mode = 'same')
         
+        """
+        10. synthetic convolution via numpy convolution
+        """
+        
+        #convolution of data                
+        synth = np.convolve(np.nan_to_num(Rc_tdom),wavelet, mode = 'same') ## PRoblem with nan values!!!!!!!!!!!!!!! - fixed 
+        synth = np.nan_to_num(synth)
+        synth = np.asarray(synth)
+
         #Adding curve fill ability 
-        synth_pos = np.where(synth < 0, 0, synth) # positive synthetic only 
-        syn_co = synth * 0 # synthetic curve 
-        synth_pos_curve = pg.PlotCurveItem(x=synth_pos, y=t[0:], pen='b') # creating a curve with positive only 
-        syn_co_curve = pg.PlotCurveItem(x=syn_co, y=t[0:], pen=[0, 0, 0, 125]) # creating the constant curve 
+        synth_pos = np.where(synth < 0, 0, synth) # positive synthetic only
+        syn_co = synth * 0 # synthetic curve ]
+        synth_pos_curve = pg.PlotCurveItem(x=synth_pos[0:len(t)], y=t[0:], pen='b') # creating a curve with positive only 
+        syn_co_curve = pg.PlotCurveItem(x=syn_co[0:len(t)], y=t[0:], pen=[0, 0, 0, 125]) # creating the constant curve 
         syn_fill = pg.FillBetweenItem(synth_pos_curve, syn_co_curve, brush=[150, 150, 150]) #creating the fill curve 
         
         
+        #creating a trackplot to add the curvefill 
         pen = pg.mkPen(color=(255, 0, 0))
-        trackplot = pg.PlotCurveItem(synth,t,connect='finite',pen=(150, 150, 150)) #
+        trackplot = pg.PlotCurveItem(synth[0:len(t)],t,connect='finite',pen=(150, 150, 150)) 
+        #trackplot = pg.PlotCurveItem(synth[0][0:len(t)],t,connect='finite',pen=(150, 150, 150))
         
         if well_sel == 1: 
-            
             self.w1syn.addItem(syn_fill)
             self.w1syn.addItem(trackplot)
             self.w1syn.invertY(True)
             self.w1syn.showGrid(x=True,y=True)
             self.w1syn.setTitle(title = "W1 Synth: "+w_type)
             print('plotted 1') 
-            print(freq,wave_len)
+            #print(freq,wave_len)
         else: 
             
             self.w2syn.addItem(syn_fill)
@@ -1672,7 +1587,7 @@ class Ui_MainWindow(object):
             self.w2syn.showGrid(x=True,y=True)
             self.w2syn.setTitle(title = "W2 Synth: "+w_type)
             print('plotted 2') 
-            print(freq,wave_len) 
+            #print(freq,wave_len) 
 
             """
             based on w_type turn on and off for specific wavelets. 
@@ -1721,8 +1636,6 @@ class tdinfo(QDialog):
     #Method to return the input 
     def getInputs(self):
         return [self.first.text(), self.second.text()]
-    
-        
     
 
 
