@@ -58,7 +58,7 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1695, 903)
+        MainWindow.resize(1817, 904)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -95,8 +95,8 @@ class Ui_MainWindow(object):
         self.gridLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.gridLayout.setObjectName("gridLayout")
         self.Amp_slider = QtWidgets.QSlider(self.synthethic_options_frame)
-        self.Amp_slider.setMinimum(1)
-        self.Amp_slider.setMaximum(6)
+        self.Amp_slider.setMinimum(10)
+        self.Amp_slider.setMaximum(100)
         self.Amp_slider.setPageStep(1)
         self.Amp_slider.setOrientation(QtCore.Qt.Horizontal)
         self.Amp_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
@@ -104,10 +104,11 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.Amp_slider, 1, 9, 1, 1)
         self.HPF_slider = QtWidgets.QSlider(self.synthethic_options_frame)
         self.HPF_slider.setMinimum(2)
-        self.HPF_slider.setMaximum(100)
+        self.HPF_slider.setMaximum(200)
         self.HPF_slider.setProperty("value", 40)
         self.HPF_slider.setOrientation(QtCore.Qt.Horizontal)
         self.HPF_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.HPF_slider.setTickInterval(10)
         self.HPF_slider.setObjectName("HPF_slider")
         self.gridLayout.addWidget(self.HPF_slider, 1, 6, 1, 1)
         self.Amp_LCD = QtWidgets.QLCDNumber(self.synthethic_options_frame)
@@ -116,10 +117,11 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.Amp_LCD, 1, 10, 1, 1)
         self.HCF_slider = QtWidgets.QSlider(self.synthethic_options_frame)
         self.HCF_slider.setMinimum(3)
-        self.HCF_slider.setMaximum(100)
+        self.HCF_slider.setMaximum(200)
         self.HCF_slider.setProperty("value", 50)
         self.HCF_slider.setOrientation(QtCore.Qt.Horizontal)
         self.HCF_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.HCF_slider.setTickInterval(10)
         self.HCF_slider.setObjectName("HCF_slider")
         self.gridLayout.addWidget(self.HCF_slider, 2, 6, 1, 1)
         self.LCF_checkBox = QtWidgets.QCheckBox(self.synthethic_options_frame)
@@ -154,6 +156,7 @@ class Ui_MainWindow(object):
         self.LCF_slider.setProperty("value", 10)
         self.LCF_slider.setOrientation(QtCore.Qt.Horizontal)
         self.LCF_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.LCF_slider.setTickInterval(10)
         self.LCF_slider.setObjectName("LCF_slider")
         self.gridLayout.addWidget(self.LCF_slider, 1, 3, 1, 1)
         self.HCF_LCD = QtWidgets.QLCDNumber(self.synthethic_options_frame)
@@ -238,6 +241,7 @@ class Ui_MainWindow(object):
         self.LPF_slider.setProperty("value", 20)
         self.LPF_slider.setOrientation(QtCore.Qt.Horizontal)
         self.LPF_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.LPF_slider.setTickInterval(10)
         self.LPF_slider.setObjectName("LPF_slider")
         self.gridLayout.addWidget(self.LPF_slider, 2, 3, 1, 1)
         self.sample_rate_label = QtWidgets.QLabel(self.synthethic_options_frame)
@@ -479,7 +483,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1695, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1817, 26))
         self.menubar.setObjectName("menubar")
         self.menuLoad_Data = QtWidgets.QMenu(self.menubar)
         self.menuLoad_Data.setObjectName("menuLoad_Data")
@@ -518,6 +522,12 @@ class Ui_MainWindow(object):
         
         #Turning off the synthetic options 
         self.synthethic_options_frame.setEnabled(False)
+        #turning off the multiplier options
+        self.LCF_multiplier.setEnabled(False)
+        self.HPF_multiplier.setEnabled(False)
+        
+        
+        
         #Creating Plots for Each Track 
         ## Well 1 
         self.w1t1 = self.Well1Plots.addPlot(row=0,col=0) 
@@ -564,6 +574,18 @@ class Ui_MainWindow(object):
         #connection to change available wavelet types
         self.wave_type_comboBox.currentTextChanged.connect(self.wavelet_win)
         
+        #connection to allow changes in multiplier for LCF,LPF,HPF,HCF for Ormsby Filter
+        self.LCF_checkBox.stateChanged.connect(self.LCF_multiplier_controller)
+        self.HPF_checkbox.stateChanged.connect(self.HPF_multiplier_controller)
+        
+        #connection to automatically change the value of the disabled LPF/HCF
+        self.LCF_slider.valueChanged.connect(self.change_LCFslider) #slider changing value
+        self.LCF_multiplier.textChanged.connect(self.change_LCFslider) #multiploer changing value
+        self.LCF_checkBox.stateChanged.connect(self.change_LCFslider) #checkbox change
+        self.HPF_slider.valueChanged.connect(self.change_HPFslider) #slider changing value
+        self.HPF_multiplier.textChanged.connect(self.change_HPFslider)#multiplier changing value
+        self.HPF_checkbox.stateChanged.connect(self.change_HPFslider) #checkbox changed 
+        
         #connection to checkbox to link tracks to the synthetic
         self.Well1_Track1_Link_Checkbox.stateChanged.connect(self.linksynth_w1t1)
         self.Well1_Track2_Link_Checkbox.stateChanged.connect(self.linksynth_w1t2)
@@ -577,7 +599,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         # renaming window title to new format 
-        MainWindow.setWindowTitle(_translate("MainWindow", "Synthetic Analysis - v0.03 - 06/15/2022 - Fixed Convolution/Synthetic Generated "))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Synthetic Analysis - v0.04 - 06/19/2022 - Fixed Sliders + Checkboxes (all functional) "))
         self.LCF_checkBox.setText(_translate("MainWindow", "LCF Multiple"))
         self.Create_Synthetic.setText(_translate("MainWindow", "Create Synthetic"))
         self.max_time_label.setText(_translate("MainWindow", "Max Time (s)"))
@@ -886,7 +908,7 @@ class Ui_MainWindow(object):
             #passing info that well has sonic&density 
             self.havesonic2 = havesonic #well have sonic
             self.havedensity2 = havedensity #well have density
-
+    
 
     
     #method to populate combobox data for well1
@@ -1432,7 +1454,56 @@ class Ui_MainWindow(object):
             self.LCF_multiplier.setEnabled(False)
             self.HPF_checkbox.setEnabled(False)
             self.HPF_multiplier.setEnabled(False)
-        
+            
+    #method to activate multipliers: 
+    ## LowCut Frequency to control high pass frequency 
+    def LCF_multiplier_controller(self):
+        #check the state of the selected wavely type 
+        # if it's an ormsby filter waveelt 
+        #disable the ability to change Low Pass Frequency 
+        if self.wave_type_comboBox.currentText() == "Ormsby":
+            #Check to see the status of the checkbox 
+            if self.LCF_checkBox.checkState() == 2: #if checked
+                self.LPF_slider.setEnabled(False)
+                self.LCF_multiplier.setEnabled(True)
+            else: #if unchecked
+                self.LPF_slider.setEnabled(True)
+                self.LCF_multiplier.setEnabled(False)
+                
+    def HPF_multiplier_controller(self): 
+        if self.wave_type_comboBox.currentText() == "Ormsby":
+           #Check to see the status of the checkbox 
+            if self.HPF_checkbox.checkState() == 2: #if checked
+                self.HCF_slider.setEnabled(False)
+                self.HPF_multiplier.setEnabled(True)
+            else: #if unchecked
+                self.HCF_slider.setEnabled(True) 
+                self.HPF_multiplier.setEnabled(False) 
+                
+    #method to automatically change the value of the LPF slider based on LCF value and multiple (round to the nearest integer)
+    def change_LCFslider(self):
+        #if checkbox is checked for the slider: 
+            #automatically change the LPF-slider value
+        if self.LCF_checkBox.checkState() == 2: #if checked
+            #if no value are entered in the multiplier: 
+            if self.LCF_multiplier.text() == '':
+                LCFmultvalue = 1
+            else: 
+                LCFmultvalue = self.LCF_multiplier.text()
+            LPF_value = round(float(self.LCF_slider.value())*float(LCFmultvalue)) #slider value + multiplier value
+            self.LPF_slider.setProperty("value", LPF_value)
+    
+    #method to automatically change the value of the HCF slider based on HPF value and multiple (round to the nearest integer)
+    def change_HPFslider(self):
+        if self.HPF_checkbox.checkState() == 2: #if checked
+            #if no value is entered in the multiplier: 
+            if self.HPF_multiplier.text() == '':
+                HPFmultvalue = 1
+            else: 
+                LCFmultvalue = self.HPF_multiplier.text()
+            HCF_value = round(float(self.HPF_slider.value())*float(LCFmultvalue)) #slider value + multiplier value
+            self.HCF_slider.setProperty("value", HCF_value)
+            
     
     #Method to plot data in wells - Default Wavelet: Ormsby 
     def gensynaction(self,havesonic1,havedensity1,well1,well1df,havesonic2,havedensity2,well2,well2df):
@@ -1554,9 +1625,15 @@ class Ui_MainWindow(object):
         """
         
         #convolution of data                
-        synth = np.convolve(np.nan_to_num(Rc_tdom),wavelet, mode = 'same') ## PRoblem with nan values!!!!!!!!!!!!!!! - fixed 
+        synth = np.convolve(np.nan_to_num(Rc_tdom),wavelet, mode = 'same')  
         synth = np.nan_to_num(synth)
         synth = np.asarray(synth)
+        
+        print(synth)
+        #amplitude multiplier: 1.0-10.0x 
+        multiplier = float(self.Amp_slider.value())/10
+        synth = multiplier*synth
+        print(synth)
 
         #Adding curve fill ability 
         synth_pos = np.where(synth < 0, 0, synth) # positive synthetic only
@@ -1569,7 +1646,9 @@ class Ui_MainWindow(object):
         #creating a trackplot to add the curvefill 
         pen = pg.mkPen(color=(255, 0, 0))
         trackplot = pg.PlotCurveItem(synth[0:len(t)],t,connect='finite',pen=(150, 150, 150)) 
-        #trackplot = pg.PlotCurveItem(synth[0][0:len(t)],t,connect='finite',pen=(150, 150, 150))
+        
+        #amplitude multiplier: 1-10x 
+        
         
         if well_sel == 1: 
             self.w1syn.addItem(syn_fill)
