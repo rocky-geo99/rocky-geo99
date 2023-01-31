@@ -1,0 +1,1085 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1817</width>
+    <height>904</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>SYNTHETIC ANALYSIS</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <widget class="QFrame" name="WindowFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+        <widget class="QFrame" name="synthethic_options_frame">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetFixedSize</enum>
+          </property>
+          <item row="1" column="9">
+           <widget class="QSlider" name="Amp_slider">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="pageStep">
+             <number>1</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+           <widget class="QSlider" name="HPF_slider">
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>40</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="10">
+           <widget class="QLCDNumber" name="Amp_LCD">
+            <property name="intValue" stdset="0">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="6">
+           <widget class="QSlider" name="HCF_slider">
+            <property name="minimum">
+             <number>3</number>
+            </property>
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" colspan="2">
+           <widget class="QCheckBox" name="LCF_checkBox">
+            <property name="text">
+             <string>LCF Multiple</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="10">
+           <widget class="QPushButton" name="Create_Synthetic">
+            <property name="text">
+             <string>Create Synthetic</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="max_time_label">
+            <property name="text">
+             <string>Max Time (s)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="9">
+           <widget class="QComboBox" name="wavelet_well_sel_comboBox">
+            <item>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QLCDNumber" name="LCF_LCD">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="midLineWidth">
+             <number>0</number>
+            </property>
+            <property name="intValue" stdset="0">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QSlider" name="LCF_slider">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="7">
+           <widget class="QLCDNumber" name="HCF_LCD">
+            <property name="intValue" stdset="0">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5" colspan="2">
+           <widget class="QCheckBox" name="HPF_checkbox">
+            <property name="text">
+             <string>HPF Multiple</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="wave_type_comboBox">
+            <item>
+             <property name="text">
+              <string>Ormsby</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Ricker</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Berlage</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Generalized</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="max_time_comboBox">
+            <item>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="10">
+           <widget class="QLCDNumber" name="Phase_LCD"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="LPF_label">
+            <property name="text">
+             <string>LPF (Hz):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="LCF_label">
+            <property name="text">
+             <string>LCF (Hz):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="7">
+           <widget class="QLCDNumber" name="HPF_LCD">
+            <property name="intValue" stdset="0">
+             <number>40</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="sample_rate_comboBox">
+            <item>
+             <property name="text">
+              <string>0.001</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.002</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>0.004</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="8">
+           <widget class="QLabel" name="wavelet_well_sel_label">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>         Well</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QLabel" name="HPF_label">
+            <property name="text">
+             <string>HPF (Hz):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="7">
+           <widget class="QLineEdit" name="HPF_multiplier">
+            <property name="text">
+             <string>1.5</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QLabel" name="Wavelet_Title">
+            <property name="text">
+             <string>Wavelet</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="wave_length_comboBox">
+            <item>
+             <property name="text">
+              <string>128</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>256</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>512</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QLCDNumber" name="LPF_LCD">
+            <property name="intValue" stdset="0">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="5">
+           <widget class="QLabel" name="HCF_label">
+            <property name="text">
+             <string>HCF (Hz):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="wave_length_label">
+            <property name="text">
+             <string>Length (ms)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="9">
+           <widget class="QSlider" name="Phase_slider">
+            <property name="maximum">
+             <number>360</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>30</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QSlider" name="LPF_slider">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>20</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="sample_rate_label">
+            <property name="text">
+             <string>Sample (s)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="8">
+           <widget class="QLabel" name="Amplitude_label">
+            <property name="text">
+             <string>Amplitude</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QLineEdit" name="LCF_multiplier">
+            <property name="text">
+             <string>1.5</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="8">
+           <widget class="QLabel" name="Phase_label">
+            <property name="text">
+             <string>Phase (deg)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="wave_type_label">
+            <property name="text">
+             <string>Type</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QFrame" name="Mainframe_Plotting">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>641</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item alignment="Qt::AlignLeft|Qt::AlignTop">
+           <widget class="QFrame" name="Well1InfoFrame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>220</width>
+              <height>600</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="QFrame" name="wellinfoframe">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>280</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Box</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="lineWidth">
+                <number>2</number>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_2">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="Well_info_label">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Well Name</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="Track1dropdown">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="Well1_Track1_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track1"/>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="Track2dropdown">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="Well1_Track2_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track2"/>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="Track3dropdown">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QCheckBox" name="Well1_Track3_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track3"/>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QCheckBox" name="Well1_TWT_checkBox">
+                  <property name="layoutDirection">
+                   <enum>Qt::RightToLeft</enum>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>TWT:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="Synthetic_Graph_Widget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>300</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>300</height>
+                </size>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="wavelet_plot_title">
+                  <property name="text">
+                   <string>Wavelet Plot</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="PlotWidget" name="wavelet_graph">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="GraphicsLayoutWidget" name="Well1Plots">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>600</width>
+              <height>600</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="GraphicsLayoutWidget" name="Well2Plots">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>600</width>
+              <height>600</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignRight|Qt::AlignTop">
+           <widget class="QFrame" name="Well2InfoFrame">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>220</width>
+              <height>600</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QFrame" name="wellinfoframe2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>300</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>300</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Box</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <property name="lineWidth">
+                <number>2</number>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="Well_info_label2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Well Name</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="Track1dropdown2">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="Well2_Track3_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track1_well2"/>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="Track2dropdown2">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="Well2_Track2_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track2_well2"/>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="Track3dropdown2">
+                  <property name="frameShape">
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="text">
+                   <string>Track 3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QCheckBox" name="Well2_Track1_Link_Checkbox">
+                  <property name="text">
+                   <string>Link Track</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" colspan="2">
+                 <widget class="QComboBox" name="comboBox_Track3_well2"/>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QCheckBox" name="Well2_TWT_checkBox">
+                  <property name="layoutDirection">
+                   <enum>Qt::RightToLeft</enum>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>TWT:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="Synthetic_Graph_Widget_2" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>300</height>
+                </size>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <item>
+                 <widget class="QLabel" name="wavelet_plot_title_2">
+                  <property name="text">
+                   <string>Wavelet Plot</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="PlotWidget" name="wavelet_graph_2">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>250</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1817</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuLoad_Data">
+    <property name="title">
+     <string>Load Data</string>
+    </property>
+    <addaction name="actionLoad_Well_1"/>
+    <addaction name="actionLoad_Well_2"/>
+    <addaction name="actionLoad_Seismic"/>
+    <addaction name="actionLoad_Well_Tops"/>
+   </widget>
+   <widget class="QMenu" name="menuGenerate_Synthetic">
+    <property name="title">
+     <string>Generate Synthetic</string>
+    </property>
+    <addaction name="Create_Synthetic_Menu_Button"/>
+   </widget>
+   <addaction name="menuLoad_Data"/>
+   <addaction name="menuGenerate_Synthetic"/>
+  </widget>
+  <action name="actionLoad_Well_1">
+   <property name="text">
+    <string>Load Well 1</string>
+   </property>
+  </action>
+  <action name="actionLoad_Well_2">
+   <property name="text">
+    <string>Load Well 2</string>
+   </property>
+  </action>
+  <action name="actionLoad_Seismic">
+   <property name="text">
+    <string>Load Seismic</string>
+   </property>
+  </action>
+  <action name="actionLoad_Well_Tops">
+   <property name="text">
+    <string>Load Well Tops</string>
+   </property>
+  </action>
+  <action name="Create_Synthetic_Menu_Button">
+   <property name="text">
+    <string>Create</string>
+   </property>
+  </action>
+  <action name="gensynwell_2">
+   <property name="text">
+    <string>Well 2</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GraphicsLayoutWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph</header>
+  </customwidget>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>HCF_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>HCF_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>649</x>
+     <y>746</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>771</x>
+     <y>747</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>HPF_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>HPF_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>649</x>
+     <y>716</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>771</x>
+     <y>717</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Phase_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Phase_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>979</x>
+     <y>746</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1101</x>
+     <y>747</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Amp_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Amp_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>979</x>
+     <y>716</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1101</x>
+     <y>717</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LPF_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>LPF_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>339</x>
+     <y>746</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>747</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LCF_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>LCF_LCD</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>339</x>
+     <y>716</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>717</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
